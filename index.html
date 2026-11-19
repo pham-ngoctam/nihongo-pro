@@ -1,33 +1,93 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f6fbf8"><meta name="description" content="Nihongo Pro – học tiếng Nhật JLPT N3, N2, N1 bằng tiếng Việt: từ vựng, Kanji, ngữ pháp, nghe, đọc và luyện đề.">
-  <title>Nihongo Pro – Chinh phục N3 đến N1</title><link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4faf6">
+  <title>Nihongo Pro — Từ số 0 đến JLPT N1</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <a class="brand" href="#home"><span class="brand-mark">日</span><span><b>Nihongo Pro</b><small>日本語を学ぼう</small></span></a>
-    <div class="level-switch"><label for="level">CHỌN CẤP ĐỘ</label><select id="level"><option>N3</option><option>N2</option><option>N1</option></select></div>
-    <nav class="nav-list" aria-label="Điều hướng">
-      <button class="nav-btn active" data-page="home">🏠 <span>Tổng quan</span></button>
-      <button class="nav-btn" data-page="learn">🗺️ <span>Lộ trình bài học</span></button>
-      <button class="nav-btn" data-page="vocab">🧠 <span>Từ vựng & Kanji</span></button>
-      <button class="nav-btn" data-page="grammar">✍️ <span>Ngữ pháp</span></button>
-      <button class="nav-btn" data-page="listening">🎧 <span>Luyện nghe</span></button>
-      <button class="nav-btn" data-page="reading">📖 <span>Đọc hiểu</span></button>
-      <button class="nav-btn" data-page="quiz">🏆 <span>Luyện đề JLPT</span></button>
-      <button class="nav-btn" data-page="review">🔁 <span>Ôn tập của tôi</span></button>
-    </nav>
-    <div class="sidebar-note"><span>🌱</span><b>Mỗi ngày tiến một chút</b><p>30 phút đều đặn sẽ tạo nên khác biệt.</p></div>
-    <div class="sidebar-foot">Tiến độ được lưu trên thiết bị này.</div>
-  </aside>
-  <main class="main-content">
-    <header class="topbar"><button class="mobile-brand" id="menuToggle">☰ Nihongo Pro</button><div class="top-spacer"></div><div class="streak">🔥 <b id="streak">0</b> ngày</div><div class="xp">⭐ <b id="xp">0</b> XP</div><div class="avatar">学</div></header>
-    <section id="app" aria-live="polite"></section>
-    <footer>日本語の勉強を楽しもう！ <span>·</span> Nihongo Pro · N3 → N2 → N1</footer>
-  </main>
-</div>
-<script src="app.js"></script>
-</body></html>
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Mở menu">☰</button>
+    <a class="brand" href="#" data-view="home"><span class="brand-mark">日</span><span>Nihongo <b>Pro</b></span></a>
+    <div class="top-actions">
+      <span class="pill" id="streakPill">🔥 0 ngày</span>
+      <span class="pill" id="xpPill">⭐ 0 XP</span>
+      <button class="avatar" id="accountBtn" aria-label="Tài khoản">👤</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-user">
+        <div class="avatar large" id="sideAvatar">学</div>
+        <div><b id="sideName">Khách học</b><small id="sideStatus">Đang học trên thiết bị này</small></div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="home">🏠 <span>Tổng quan</span></button>
+        <button class="nav-item" data-view="kana">あ <span>Bảng chữ cái</span></button>
+        <button class="nav-item" data-view="path">🗺️ <span>Lộ trình học</span></button>
+        <button class="nav-item" data-view="vocab">🧠 <span>Từ vựng & Kanji</span></button>
+        <button class="nav-item" data-view="grammar">📘 <span>Ngữ pháp</span></button>
+        <button class="nav-item" data-view="listening">🎧 <span>Luyện nghe</span></button>
+        <button class="nav-item" data-view="quiz">✍️ <span>Kiểm tra JLPT</span></button>
+        <button class="nav-item" data-view="progress">📈 <span>Tiến độ cá nhân</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-view="account">⚙️ <span>Tài khoản & đồng bộ</span></button>
+        <small>Học từng ngày, tiến bộ từng bước.</small>
+      </div>
+    </aside>
+
+    <main id="main" class="main-content">
+      <section class="hero">
+        <div>
+          <span class="eyebrow">JAPANESE LEARNING JOURNEY</span>
+          <h1>Từ chữ cái đầu tiên<br>đến JLPT N1 🇯🇵</h1>
+          <p>Học tiếng Nhật theo lộ trình rõ ràng, giải thích bằng tiếng Việt, luyện tập mỗi ngày và lưu tiến độ riêng cho từng tài khoản.</p>
+          <button class="primary-btn" data-view="path">Bắt đầu học <span>→</span></button>
+        </div>
+        <div class="hero-art">あ<br><span>日</span></div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="stat-card"><span>⭐</span><b id="homeXP">0</b><small>XP tích lũy</small></article>
+        <article class="stat-card"><span>📚</span><b id="homeLessons">0</b><small>Bài đã hoàn thành</small></article>
+        <article class="stat-card"><span>🧠</span><b id="homeWords">0</b><small>Từ đã đánh dấu nhớ</small></article>
+        <article class="stat-card"><span>🎯</span><b id="homeLevel">Bắt đầu</b><small>Cấp độ hiện tại</small></article>
+      </section>
+
+      <section class="section-head"><div><span class="eyebrow">YOUR LEARNING PATH</span><h2>Lộ trình của bạn</h2></div><button class="text-btn" data-view="path">Xem tất cả →</button></section>
+      <section id="homeLevels" class="level-grid"></section>
+
+      <section class="section-head"><div><span class="eyebrow">DAILY PRACTICE</span><h2>Học một chút mỗi ngày</h2></div></section>
+      <section class="quick-grid">
+        <button class="quick-card" data-view="kana"><span>あ</span><b>Bảng chữ cái</b><small>Hiragana & Katakana</small></button>
+        <button class="quick-card" data-view="vocab"><span>語</span><b>Từ vựng</b><small>Học từ theo chủ đề</small></button>
+        <button class="quick-card" data-view="listening"><span>🎧</span><b>Luyện nghe</b><small>Nghe và hiểu tiếng Nhật</small></button>
+        <button class="quick-card" data-view="quiz"><span>✍️</span><b>Kiểm tra</b><small>Ôn tập kiến thức</small></button>
+      </section>
+      <footer>© Nihongo Pro · Nội dung học tập giải thích bằng tiếng Việt</footer>
+    </main>
+  </div>
+
+  <dialog id="authDialog" class="modal">
+    <form method="dialog" class="modal-close"><button class="icon-btn">✕</button></form>
+    <div class="modal-icon">👥</div>
+    <span class="eyebrow">YOUR PERSONAL LEARNING SPACE</span>
+    <h2 id="authTitle">Đăng nhập Nihongo Pro</h2>
+    <p class="muted">Mỗi người dùng một tài khoản riêng. Tiến độ sẽ được đồng bộ khi đã cấu hình dịch vụ đám mây.</p>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="ban@example.com"></div>
+    <div class="field"><label>Mật khẩu</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Ít nhất 6 ký tự"></div>
+    <div class="field" id="nameField" hidden><label>Tên hiển thị</label><input id="authName" type="text" placeholder="Tên của bạn"></div>
+    <div class="auth-actions"><button class="primary-btn full" id="authSubmit" type="button">Đăng nhập</button><button class="secondary-btn full" id="toggleAuth" type="button">Tạo tài khoản mới</button></div>
+    <button class="text-btn full" id="forgotBtn" type="button">Quên mật khẩu?</button>
+    <p class="tiny muted" id="authMessage">Bạn có thể học thử ở chế độ khách. Để đồng bộ giữa nhiều thiết bị, cần cấu hình Supabase theo README.</p>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
