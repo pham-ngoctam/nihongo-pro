@@ -1,47 +1,44 @@
-# Nihongo Pro Ultimate — từ số 0 đến JLPT N1
+# Nihongo Pro Ultimate — Content Expansion Package
 
-Website học tiếng Nhật giao diện responsive, giải thích tiếng Việt. Chạy tĩnh trên GitHub Pages.
+A responsive static Japanese learning site with Vietnamese explanations and a learning path from START through JLPT N1.
 
-## Có gì trong bản này?
-- Hiragana và Katakana có nút đọc phát âm (Speech Synthesis của trình duyệt).
-- Lộ trình: nhập môn, N5, N4, N3, N2, N1.
-- Trang từ vựng/Kanji, ngữ pháp, luyện nghe, quiz, tiến độ.
-- Chế độ khách lưu trên trình duyệt bằng localStorage.
-- Đăng ký/đăng nhập email và đồng bộ tiến độ riêng từng người qua Supabase.
-- Mỗi người dùng một tài khoản email riêng. RLS trong SQL giới hạn dữ liệu theo auth.uid().
+## Package modules
+- `index.html`, `styles.css`, `app.js`: UI and application logic.
+- `content.js`: original vocabulary and grammar data.
+- `course.js`: themed unit roadmap, level-indexed word-based Kanji entries and reading snippets.
+- `supabase-schema.sql`: existing schema for separate cloud progress.
+- `CONTENT_ROADMAP.md`: scope and honest coverage notes.
 
-## Quan trọng về đăng nhập nhiều người
-GitHub Pages chỉ host website tĩnh, không tự tạo hệ thống tài khoản. Muốn mày và em mày đăng nhập riêng và đồng bộ tiến độ trên nhiều thiết bị, cần cấu hình Supabase (gói miễn phí có thể đủ cho khởi đầu).
+## Current package coverage
+- 6 levels: START, N5, N4, N3, N2, N1
+- 240 vocabulary entries and 120 grammar entries (starter corpus)
+- Level-based lesson pages with integrated vocabulary, grammar, sample reading and marking completion
+- Word-based Kanji review list
+- Kana, listening (browser speech synthesis), short reading, quiz, review list and progress dashboard
+- Existing guest/local storage and optional Supabase auth/progress sync
 
-### A. Tạo Supabase
-1. Mở https://supabase.com/ và tạo project.
-2. Trong Project Settings → API, sao chép Project URL và anon/public key.
-3. Mở file `supabase-schema.sql` trong repository hoặc Supabase SQL Editor.
-4. Dán toàn bộ SQL vào SQL Editor và bấm Run.
-5. Trong Authentication → Providers, bật Email. Có thể tắt Confirm email để thử nghiệm đơn giản; nếu bật thì mỗi người phải xác nhận email.
-6. Authentication → URL Configuration: đặt Site URL là `https://pham-ngoctam.github.io` và thêm Redirect URL `https://pham-ngoctam.github.io/nihongo-pro/`.
+## Important content limitations
+This is an upgraded runnable package and curriculum scaffold, not a complete commercial school curriculum, not a full JLPT word/kanji/grammar inventory, and not official exam content. Reading texts and listening remain starter samples; listening uses browser text-to-speech rather than native recordings. Some Kanji entries are word-level learning items (reading as used in that word), not a complete character dictionary with all readings, radicals and stroke diagrams. All content is independently authored/paraphrased; it does not reproduce copyrighted textbook chapters.
 
-### B. Nối website với Supabase
-1. Mở `app.js` trên GitHub → nút bút chì Edit.
-2. Ở đầu file, tìm:
-   `const SUPABASE_URL = "";`
-   `const SUPABASE_ANON_KEY = "";`
-3. Điền Project URL và anon/public key vào hai dấu ngoặc kép.
-4. Không bao giờ đưa `service_role` key vào website. Chỉ dùng anon/public key.
-5. Commit changes. Chờ GitHub Pages triển khai.
+## Deploy to GitHub Pages
+1. Download and unzip this package.
+2. Upload/replace the files at the root of your GitHub Pages repository:
+   `index.html`, `app.js`, `styles.css`, `content.js`, `course.js`, `supabase-schema.sql`, `README.md`, `CONTENT_ROADMAP.md`.
+3. Commit the files.
+4. Repository Settings → Pages → ensure the selected branch and root directory are configured.
+5. Wait for deployment and open your Pages URL.
 
-### C. Tạo tài khoản cho hai người
-1. Mở website → Tài khoản & đồng bộ → Đăng nhập / Tạo tài khoản.
-2. Mày đăng ký bằng email của mày.
-3. Em mày đăng ký bằng email riêng của em ấy.
-4. Mỗi tài khoản có một hàng dữ liệu `learning_progress` riêng. Không dùng chung email/mật khẩu.
+## Supabase setup (cloud accounts)
+The static site requires your own Supabase project for cloud login/sync.
+1. Create a project in Supabase.
+2. Run `supabase-schema.sql` in SQL Editor.
+3. Copy the Project URL and anon/public key (never service_role).
+4. Enter those values into the two constants near the top of `app.js`.
+5. Configure Auth URL settings with your deployed site URL.
+6. Register individual email accounts on the site.
 
-## Triển khai GitHub Pages
-Repository → Settings → Pages → Deploy from a branch → `main` → `/ (root)` → Save.
-Website: https://pham-ngoctam.github.io/nihongo-pro/
+## Offline/guest
+Guest progress is stored locally in the browser on the device. Cloud sync is not available until Supabase is configured.
 
-## Upload bản mới bằng iPhone
-Giải nén ZIP trong ứng dụng Files. Trên GitHub repository chọn Add file → Upload files, chọn `index.html`, `app.js`, `styles.css`, `README.md`, `supabase-schema.sql`, rồi Commit changes. Nếu iOS không cho chọn nhiều file, upload từng file. Không xóa repository.
-
-## Giới hạn nội dung hiện tại — đọc kỹ
-Đây là bản nền tảng có dữ liệu học mẫu để kiểm tra luồng và giao diện, KHÔNG phải giáo trình đầy đủ chính thức từ bảng chữ cái đến N1, cũng không phải ngân hàng đề JLPT chính thức. Mỗi cấp độ hiện có 10 chủ đề lộ trình và một số ví dụ mẫu; cần biên soạn, rà soát và bổ sung nhiều bài học, từ vựng, kanji, audio người bản xứ và đề thi theo từng chương. Phần luyện nghe dùng giọng đọc tổng hợp của thiết bị, không phải bản thu âm người Nhật.
+## Safety note
+Never paste Supabase `service_role` credentials into client-side code.

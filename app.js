@@ -42,6 +42,17 @@ const grammar={
  N2:[["～に伴って","Cùng với sự thay đổi của…","人口の増加に伴って、問題も増えた。— Cùng với dân số tăng, vấn đề cũng tăng."],["～ものの","Mặc dù… nhưng…","説明を聞いたものの、まだ分からない。— Dù đã nghe giải thích nhưng vẫn chưa hiểu."],["～に違いない","Chắc chắn là… (suy luận mạnh).","彼は知っているに違いない。— Anh ấy chắc chắn biết."]],
  N1:[["～を禁じ得ない","Không thể kìm nén (cảm xúc).","その話を聞いて、怒りを禁じ得なかった。— Nghe chuyện đó, tôi không thể kìm nén cơn giận."],["～に即して","Dựa theo, phù hợp với…","現状に即して判断する。— Đánh giá dựa theo tình hình thực tế."],["～を余儀なくされる","Bị buộc phải…","計画の変更を余儀なくされた。— Bị buộc phải thay đổi kế hoạch."]]
 };
+if(window.NP_CONTENT){ Object.keys(window.NP_CONTENT.vocab).forEach(k=>vocab[k]=window.NP_CONTENT.vocab[k]); Object.keys(window.NP_CONTENT.grammar).forEach(k=>grammar[k]=window.NP_CONTENT.grammar[k]); }
+const courseThemes=(window.NP_COURSE&&window.NP_COURSE.themes)||{};
+const kanjiWords=(window.NP_COURSE&&window.NP_COURSE.kanjiWords)||{};
+const readingBank={
+ START:[["自己紹介","私はベトナム人です。日本語を勉強しています。日本で生活しています。","Tôi là người Việt Nam. Tôi đang học tiếng Nhật và sống ở Nhật."],["一日の生活","朝起きて、ご飯を食べます。それから学校へ行きます。","Buổi sáng thức dậy, ăn cơm rồi đi học."]],
+ N5:[["休日","日曜日は休みです。友達と公園へ行きます。写真を撮って、昼ご飯を食べます。","Chủ nhật nghỉ. Tôi đi công viên cùng bạn, chụp ảnh rồi ăn trưa."],["買い物","スーパーで野菜と牛乳を買いました。全部で千円でした。","Tôi mua rau và sữa ở siêu thị. Tổng cộng 1.000 yên."]],
+ N4:[["新しい生活","引っ越してから、近くの店や駅を調べました。生活に必要なものを少しずつ準備しています。","Sau khi chuyển nhà, tôi tìm hiểu cửa hàng và ga gần đó. Tôi đang chuẩn bị từng chút những thứ cần cho cuộc sống."],["健康","最近忙しくて、あまり運動していません。健康のために、毎日少し歩くことにしました。","Gần đây bận nên ít vận động. Vì sức khỏe, tôi quyết định đi bộ một chút mỗi ngày."]],
+ N3:[["地域活動","地域のイベントに参加すると、普段話す機会がない人とも交流できます。活動を通して、地域への理解も深まりました。","Tham gia sự kiện địa phương giúp giao lưu với những người ít có dịp trò chuyện, qua hoạt động hiểu hơn về cộng đồng."],["働き方","仕事の効率を上げるには、時間を管理するだけでなく、情報を共有することも大切です。","Để tăng hiệu suất công việc, ngoài quản lý thời gian còn cần chia sẻ thông tin."]],
+ N2:[["業務改善","業務の手順を見直した結果、作業時間を削減できました。一方で、関係者への説明と情報共有を維持する必要があります。","Sau khi rà soát quy trình, thời gian làm việc giảm. Mặt khác, vẫn cần duy trì giải thích và chia sẻ thông tin với các bên."],["制度の変更","制度を導入する際には、対象者や条件を明確にしたうえで、現状に合った運用を検討するべきです。","Khi áp dụng hệ thống, cần làm rõ đối tượng và điều kiện rồi xem xét cách vận hành phù hợp hiện trạng."]],
+ N1:[["判断の前提","一見妥当に見える結論であっても、前提となる情報が不十分であれば、判断の根拠そのものを問い直す必要がある。","Ngay cả kết luận thoạt nhìn hợp lý, nếu thông tin tiền đề không đầy đủ thì cần xem xét lại chính căn cứ phán đoán."],["持続的な改善","改革を継続的に遂行するには、理念と現場の実情を相互に照らし合わせ、検証に基づいて措置を講じることが不可欠だ。","Để thực thi cải cách bền vững, cần đối chiếu mục tiêu với thực tế và đưa ra biện pháp dựa trên kiểm chứng."]]
+};
 const listening=[
  ["N5","駅での案内","電車は三番線から出発します。","Tàu điện sẽ khởi hành từ sân ga số 3.","Tàu khởi hành ở sân ga nào?",["1","2","3","4"],2],
  ["N5","日常会話","今日は暑いですね。水を飲みましょう。","Hôm nay nóng nhỉ. Chúng ta uống nước nhé.","Hôm nay thời tiết thế nào?",["Lạnh","Nóng","Mưa","Tuyết"],1],
@@ -89,23 +100,63 @@ function renderPath(){
 }
 function openLesson(level,index){
  const l=levels.find(x=>x.id===level),unit=l.units[+index],g=(grammar[level]||grammar.N5)[+index%(grammar[level]||grammar.N5).length];
- page(unit,`${l.name} · Bài ${+index+1}/10 · Giải thích bằng tiếng Việt`,`
- <article class="study-card"><span class="eyebrow">LESSON ${String(+index+1).padStart(2,"0")}</span><h2>${unit}</h2><h3>Ngữ pháp trọng tâm</h3><div class="jp">${g[0]}</div><p><b>${g[1]}</b></p><div class="answer">${g[2]}</div><h3>Hãy luyện tập</h3><p class="muted">Đọc cấu trúc, đọc ví dụ thành tiếng và tự đặt một câu tương tự. Sau đó đánh dấu hoàn thành để lưu tiến độ.</p><button class="primary-btn" id="completeLesson">Hoàn thành bài học +20 XP</button></article>`);
- $("#completeLesson").onclick=()=>{const id=level+"-"+index;if(!state.progress.completed.includes(id)){state.progress.completed.push(id);state.progress.xp+=20;state.progress.level=level==="START"?"Nhập môn":level;saveProgress();toast("Đã lưu bài học! +20 XP")}else toast("Bài này đã hoàn thành rồi.");};
+ const words=(vocab[level]||vocab.N5).slice((+index*4)%Math.max(1,(vocab[level]||vocab.N5).length),((+index*4)%Math.max(1,(vocab[level]||vocab.N5).length))+8);
+ const reading=(readingBank[level]||readingBank.N5)[+index%2];
+ page(unit,`${l.name} · Unit ${+index+1}/10 · bài học tích hợp`,`
+ <article class="study-card"><span class="eyebrow">UNIT ${String(+index+1).padStart(2,"0")} · ${level}</span><h2>${unit}</h2>
+ <h3>1. Mục tiêu bài học</h3><ul><li>Nắm từ vựng theo chủ đề.</li><li>Hiểu và vận dụng cấu trúc trọng tâm.</li><li>Đọc đoạn văn và tự kiểm tra.</li></ul>
+ <h3>2. Từ vựng trọng tâm</h3><div class="lesson-list">${words.map(w=>`<div class="lesson-row"><div><b class="jp">${w[0]}</b><small>${w[1]} · ${w[2]}</small></div><button class="icon-btn" data-lesson-speak="${w[1]}">🔊</button></div>`).join("")}</div>
+ <h3>3. Ngữ pháp trọng tâm</h3><div class="content-card"><h2 class="jp">${g[0]}</h2><b>${g[1]}</b><p class="answer">${g[2]}</p><button class="secondary-btn" id="grammarSpeak">🔊 Nghe ví dụ</button></div>
+ <h3>4. Đọc hiểu</h3><div class="content-card"><b>${reading[0]}</b><p class="jp">${reading[1]}</p><p class="muted">${reading[2]}</p><button class="secondary-btn" id="readSpeak">🔊 Đọc đoạn văn</button></div>
+ <h3>5. Bài tập tự luyện</h3><p class="muted">Tự viết 3 câu sử dụng cấu trúc trên và 5 từ mới. Chuyển sang kiểm tra cấp ${level} sau khi hoàn thành.</p>
+ <div class="inline-actions"><button class="primary-btn" id="completeLesson">Hoàn thành bài +20 XP</button><button class="secondary-btn" data-view="quiz">Làm kiểm tra</button></div></article>`);
+ document.querySelectorAll("[data-lesson-speak]").forEach(b=>b.onclick=()=>speak(b.dataset.lessonSpeak));
+ $("#grammarSpeak").onclick=()=>speak(g[2].split("—")[0]);
+ $("#readSpeak").onclick=()=>speak(reading[1]);
+ $("#completeLesson").onclick=()=>{const id=level+"-"+index;if(!state.progress.completed.includes(id)){state.progress.completed.push(id);state.progress.xp+=20;state.progress.level=level;saveProgress();toast("Đã lưu bài học! +20 XP")}else toast("Bài này đã hoàn thành rồi.");};
 }
 function renderVocab(){
  const lv=state.selectedLevel,words=vocab[lv]||vocab.N5;
- page("Từ vựng & Kanji","Học từ theo cấp độ. Chạm biểu tượng loa để nghe, đánh dấu từ đã nhớ để lưu vào hồ sơ.",`
+ page("Từ vựng & Kanji","Kho từ theo cấp. Furigana, nghĩa và phát âm; đánh dấu từ nhớ để ôn tập.",`
  <div class="toolbar">${levels.map(l=>`<button class="chip ${lv===l.id?"active":""}" data-vlevel="${l.id}">${l.id}</button>`).join("")}</div>
- <div class="lesson-list">${words.map((w,i)=>`<div class="lesson-row"><div class="lesson-num">${i+1}</div><div><b class="jp" style="font-size:23px">${w[0]}</b><small>${w[1]} · ${w[2]}</small></div><button class="icon-btn" data-speak="${w[1]}">🔊</button><button class="secondary-btn" data-known="${lv}-${i}">${state.progress.known.includes(lv+"-"+i)?"Đã nhớ":"Đánh dấu nhớ"}</button></div>`).join("")}</div>`);
+ <div class="lesson-list">${words.map((w,i)=>`<div class="lesson-row"><div class="lesson-num">${i+1}</div><div><b class="jp" style="font-size:23px">${w[0]}</b><small>${w[1]} · ${w[2]}</small></div><button class="icon-btn" data-speak="${w[1]}">🔊</button><button class="secondary-btn" data-known="${lv}-${i}">${state.progress.known.includes(lv+"-"+i)?"Đã nhớ":"Đánh dấu nhớ"}</button></div>`).join("")}</div><p class="tiny muted">Kho nội dung phiên bản nâng cấp: ${words.length} mục ở cấp ${lv}. Nội dung sẽ tiếp tục được mở rộng theo từng unit.</p>`);
  document.querySelectorAll("[data-vlevel]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.vlevel;renderVocab()});
  document.querySelectorAll("[data-speak]").forEach(b=>b.onclick=()=>speak(b.dataset.speak));
  document.querySelectorAll("[data-known]").forEach(b=>b.onclick=()=>{const id=b.dataset.known;if(!state.progress.known.includes(id)){state.progress.known.push(id);state.progress.xp+=2;saveProgress();toast("+2 XP · Đã lưu từ vựng")}renderVocab()});
 }
+function renderKanji(){
+ const lv=state.selectedLevel,items=kanjiWords[lv]||[];
+ page("Kho Kanji & chữ Hán","Tập trung học chữ trong từ: cách đọc từ vựng, nghĩa, nghe và đánh dấu nhớ. Đây là kho học theo từ, không khẳng định mọi âm đọc riêng của từng chữ.",`
+ <div class="toolbar">${levels.map(l=>`<button class="chip ${lv===l.id?"active":""}" data-klevel="${l.id}">${l.id}</button>`).join("")}</div>
+ <div class="lesson-list">${items.map((w,i)=>`<article class="content-card"><span class="eyebrow">${lv} · KANJI / VOCAB ${i+1}</span><h2 class="jp">${w[0]}</h2><p>${w[2]}</p><small>${w[1]}</small><div class="inline-actions"><button class="secondary-btn" data-kanji-speak="${w[1]}">🔊 Nghe đọc</button><button class="secondary-btn" data-kanji-known="${lv}-${i}">${state.progress.known.includes("K-"+lv+"-"+i)?"Đã nhớ":"Đánh dấu nhớ"}</button></div></article>`).join("")}</div>`);
+ document.querySelectorAll("[data-klevel]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.klevel;renderKanji()});
+ document.querySelectorAll("[data-kanji-speak]").forEach(b=>b.onclick=()=>speak(b.dataset.kanjiSpeak));
+ document.querySelectorAll("[data-kanji-known]").forEach(b=>b.onclick=()=>{const id="K-"+b.dataset.kanjiKnown;if(!state.progress.known.includes(id)){state.progress.known.push(id);state.progress.xp+=2;saveProgress()}renderKanji()});
+}
+function renderReading(){
+ const lv=state.selectedLevel,items=readingBank[lv]||readingBank.N5;
+ page("Đọc hiểu","Bài đọc ngắn theo cấp độ. Đọc, nghe đọc lại và kiểm tra ý chính bằng cách tự diễn đạt.",`
+ <div class="toolbar">${levels.filter(l=>l.id!=="START").map(l=>`<button class="chip ${lv===l.id?"active":""}" data-rlevel="${l.id}">${l.id}</button>`).join("")}</div>
+ <div class="lesson-list">${items.map((r,i)=>`<article class="content-card"><span class="eyebrow">${lv} · READING ${i+1}</span><h2>${r[0]}</h2><p class="jp" style="line-height:2">${r[1]}</p><details><summary>Hiện dịch tiếng Việt</summary><p>${r[2]}</p></details><button class="secondary-btn" data-read-speak="${i}">🔊 Đọc văn bản</button></article>`).join("")}</div><p class="tiny muted">Bộ đọc hiểu hiện có các văn bản mẫu ngắn được biên soạn riêng. Kho bài đọc dài và câu hỏi dạng JLPT cần được tiếp tục bổ sung.</p>`);
+ document.querySelectorAll("[data-rlevel]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.rlevel;renderReading()});
+ document.querySelectorAll("[data-read-speak]").forEach(b=>b.onclick=()=>speak(items[+b.dataset.readSpeak][1]));
+}
+function renderReview(){
+ const due=state.progress.known||[],items=[];
+ for(const lv of Object.keys(vocab)){(vocab[lv]||[]).forEach((w,i)=>{if(due.includes(lv+"-"+i)||due.includes("K-"+lv+"-"+i))items.push({w,lv,i})})}
+ if(!items.length){page("Ôn tập","Đánh dấu từ vựng hoặc mục Kanji đã nhớ để đưa vào bộ ôn tập.",`<article class="content-card"><h2>Chưa có mục ôn tập</h2><p class="muted">Mở kho từ vựng hoặc Kanji và đánh dấu các mục cần ôn.</p><button class="primary-btn" data-view="vocab">Mở kho từ vựng</button></article>`);return}
+ const item=items[state.currentQuiz%items.length];
+ page("Ôn tập từ đã đánh dấu","Ôn nhanh những mục đã lưu.",`<article class="study-card"><span class="eyebrow">REVIEW ${state.currentQuiz+1}/${items.length} · ${item.lv}</span><h2 class="jp">${item.w[0]}</h2><small>${item.w[1]}</small><div class="inline-actions"><button class="primary-btn" id="showReviewMeaning">Hiện nghĩa</button><button class="secondary-btn" id="reviewSpeak">🔊 Nghe</button></div><p id="reviewMeaning" hidden>${item.w[2]}</p><div class="inline-actions"><button class="secondary-btn" id="reviewPrev">← Trước</button><button class="primary-btn" id="reviewNext">Tiếp →</button></div></article>`);
+ $("#showReviewMeaning").onclick=()=>$("#reviewMeaning").hidden=!$("#reviewMeaning").hidden;
+ $("#reviewSpeak").onclick=()=>speak(item.w[1]);
+ $("#reviewPrev").onclick=()=>{state.currentQuiz=(state.currentQuiz-1+items.length)%items.length;renderReview()};
+ $("#reviewNext").onclick=()=>{state.currentQuiz=(state.currentQuiz+1)%items.length;renderReview()};
+}
 function renderGrammar(){
  const lv=state.selectedLevel,items=grammar[lv]||grammar.N5;
- page("Ngữ pháp","Mỗi cấu trúc gồm ý nghĩa, ví dụ tiếng Nhật và bản dịch tiếng Việt.",`<div class="toolbar">${levels.map(l=>`<button class="chip ${lv===l.id?"active":""}" data-glevel="${l.id}">${l.id}</button>`).join("")}</div><div class="lesson-list">${items.map((g,i)=>`<article class="content-card"><span class="eyebrow">${lv} · GRAMMAR ${i+1}</span><h2 class="jp">${g[0]}</h2><b>${g[1]}</b><div class="answer">${g[2]}</div></article>`).join("")}</div>`);
+ page("Ngữ pháp","Danh sách cấu trúc theo cấp; chạm loa để nghe ví dụ và học theo mẫu câu.",`<div class="toolbar">${levels.map(l=>`<button class="chip ${lv===l.id?"active":""}" data-glevel="${l.id}">${l.id}</button>`).join("")}</div><div class="lesson-list">${items.map((g,i)=>`<article class="content-card"><span class="eyebrow">${lv} · GRAMMAR ${i+1}</span><h2 class="jp">${g[0]}</h2><b>${g[1]}</b><div class="answer">${g[2]}</div><button class="secondary-btn" data-gram-speak="${i}">🔊 Nghe ví dụ</button></article>`).join("")}</div><p class="tiny muted">${items.length} cấu trúc ngữ pháp trong kho ${lv} hiện tại.</p>`);
  document.querySelectorAll("[data-glevel]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.glevel;renderGrammar()});
+ document.querySelectorAll("[data-gram-speak]").forEach(b=>b.onclick=()=>speak(items[+b.dataset.gramSpeak][2].split("—")[0]));
 }
 function renderListening(){
  const lv=state.selectedLevel,items=listening.filter(x=>x[0]===lv),item=items[state.currentListening%Math.max(1,items.length)]||listening[0];
@@ -120,14 +171,21 @@ function renderListening(){
  document.querySelectorAll("[data-listen-answer]").forEach(b=>b.onclick=()=>{const ok=+b.dataset.listenAnswer===item[6];$("#listenFeedback").textContent=ok?"Chính xác! +5 XP":"Chưa đúng. Hãy nghe lại và thử lần nữa.";if(ok){state.progress.xp+=5;saveProgress()}});
  $("#nextListen").onclick=()=>{state.currentListening++;renderListening()};
 }
+function buildContentQuiz(){
+ const lv=state.selectedLevel, vv=vocab[lv]||vocab.N5, gg=grammar[lv]||grammar.N5;
+ const out=[];
+ vv.forEach((w,i)=>{if(i%2===0){const options=[w[2],vv[(i+3)%vv.length][2],vv[(i+7)%vv.length][2],"Không có nghĩa phù hợp"];const correct=0;const shift=(i%4);const opts=options.slice(shift).concat(options.slice(0,shift));out.push({level:lv,q:`「${w[0]}（${w[1]}）」の意味は？`,opts,a:(4-shift)%4,why:`${w[0]}（${w[1]}）は「${w[2]}」です。`})}});
+ gg.forEach((g,i)=>{const options=[g[1],"Nguyên nhân hoặc điều kiện trái nghĩa","Thời điểm trong quá khứ","Cách chào hỏi"];const shift=i%4;out.push({level:lv,q:`次の表現の意味として適切なのは？「${g[0]}」`,opts:options.slice(shift).concat(options.slice(0,shift)),a:(4-shift)%4,why:g[1]})});
+ return out;
+}
 function renderQuiz(){
- const q=quizBank[state.currentQuiz%quizBank.length];
- page("Kiểm tra kiến thức JLPT","Bài kiểm tra ngắn theo cấp độ. Chọn đáp án để xem giải thích.",`
- <div class="toolbar">${quizBank.map((x,i)=>`<button class="chip ${i===state.currentQuiz?"active":""}" data-q="${i}">${x.level}</button>`).join("")}</div>
- <article class="study-card"><span class="eyebrow">QUESTION ${state.currentQuiz+1} / ${quizBank.length} · ${q.level}</span><h2>${q.q}</h2>${q.opts.map((o,i)=>`<button class="quiz-option" data-answer="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}<p id="quizFeedback" class="muted"></p><button class="primary-btn" id="nextQuiz">Câu tiếp theo →</button></article>`);
- document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{state.currentQuiz=+b.dataset.q;renderQuiz()});
+ const bank=buildContentQuiz(),q=bank[state.currentQuiz%bank.length];
+ page("Kiểm tra kiến thức JLPT","Kho câu hỏi được sinh từ từ vựng và ngữ pháp cấp đã chọn. Mỗi câu có giải thích.",`
+ <div class="toolbar">${levels.map(x=>`<button class="chip ${state.selectedLevel===x.id?"active":""}" data-test-level="${x.id}">${x.id}</button>`).join("")}</div>
+ <article class="study-card"><span class="eyebrow">CONTENT TEST · ${q.level} · ${state.currentQuiz+1}/${bank.length}</span><h2>${q.q}</h2>${q.opts.map((o,i)=>`<button class="quiz-option" data-answer="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}<p id="quizFeedback" class="muted"></p><button class="primary-btn" id="nextQuiz">Câu tiếp theo →</button></article><p class="tiny muted">Bộ kiểm tra hiện được tạo từ dữ liệu học. Tiếp theo sẽ bổ sung các đề JLPT mô phỏng theo phần và thời gian thi.</p>`);
+ document.querySelectorAll("[data-test-level]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.testLevel;state.currentQuiz=0;state.quizAnswer=null;renderQuiz()});
  document.querySelectorAll("[data-answer]").forEach(b=>b.onclick=()=>{if(state.quizAnswer===state.currentQuiz)return;const ok=+b.dataset.answer===q.a;document.querySelectorAll("[data-answer]").forEach((x,i)=>{if(i===q.a)x.classList.add("correct");else if(i===+b.dataset.answer)x.classList.add("wrong")});$("#quizFeedback").textContent=(ok?"Chính xác! ":"Chưa đúng. ")+q.why;if(ok){state.progress.xp+=10;saveProgress()}state.quizAnswer=state.currentQuiz});
- $("#nextQuiz").onclick=()=>{state.currentQuiz=(state.currentQuiz+1)%quizBank.length;state.quizAnswer=null;renderQuiz()};
+ $("#nextQuiz").onclick=()=>{state.currentQuiz=(state.currentQuiz+1)%bank.length;state.quizAnswer=null;renderQuiz()};
 }
 function renderProgress(){
  page("Tiến độ cá nhân","Dữ liệu khách được lưu trên trình duyệt này. Khi đăng nhập Supabase, dữ liệu được đồng bộ theo tài khoản.",`
@@ -153,7 +211,7 @@ async function submitAuth(){const email=$("#authEmail").value.trim(),password=$(
 async function logout(){if(sb)await sb.auth.signOut();state.user=null;state.profileName="Khách học";state.progress=freshProgress();saveLocal();updateIdentity();renderAccount();toast("Đã đăng xuất. Hồ sơ khách đã được tách riêng.")}
 function updateIdentity(){$("#sideName").textContent=state.profileName;$("#sideStatus").textContent=state.user?"Đã đăng nhập · Đồng bộ":"Đang học trên thiết bị này";$("#sideAvatar").textContent=(state.profileName||"学").slice(0,1).toUpperCase();$("#accountBtn").textContent=state.user?"✓":"👤";renderStats()}
 function bindViewButtons(){document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>navigate(b.dataset.view));document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.level;navigate("path")})}
-function navigate(view){state.view=view;$("#sidebar").classList.remove("open");document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));({home:renderHome,kana:renderKana,path:renderPath,vocab:renderVocab,grammar:renderGrammar,listening:renderListening,quiz:renderQuiz,progress:renderProgress,account:renderAccount}[view]||renderHome)();window.scrollTo(0,0)}
+function navigate(view){state.view=view;$("#sidebar").classList.remove("open");document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));({home:renderHome,kana:renderKana,path:renderPath,vocab:renderVocab,kanji:renderKanji,grammar:renderGrammar,listening:renderListening,reading:renderReading,review:renderReview,quiz:renderQuiz,progress:renderProgress,account:renderAccount}[view]||renderHome)();window.scrollTo(0,0)}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b&&b.closest("#main")){e.preventDefault();navigate(b.dataset.view)}});
 $("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");$("#accountBtn").onclick=()=>navigate("account");
 $("#authSubmit").onclick=submitAuth;$("#toggleAuth").onclick=()=>setAuthMode(state.authMode==="login"?"signup":"login");$("#forgotBtn").onclick=async()=>{if(!hasSupabase){toast("Chưa cấu hình Supabase.");return}const email=$("#authEmail").value.trim();if(!email){toast("Nhập email trước.");return}const {error}=await sb.auth.resetPasswordForEmail(email);toast(error?error.message:"Đã gửi email đặt lại mật khẩu.")};
