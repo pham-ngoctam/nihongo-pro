@@ -37,3 +37,8 @@ Single delegated click handler routes sidebar and dynamic module buttons; view r
 - Timed section flow, answer UI, finish/score/review, local history.
 - Original practice questions only; not copied official past exams.
 - Listening section content, exam-sized validated banks, detailed section timing/structure verification and normalized score estimation remain future work.
+
+
+## v5 bug fix
+- Mobile sidebar: internal scroll enabled so the lower menu entries are reachable.
+- Mock exam timer and section transitions rewritten to prevent timer duplication/stale intervals.
