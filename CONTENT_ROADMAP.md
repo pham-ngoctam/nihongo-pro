@@ -58,3 +58,8 @@ The exam screen is redesigned around timed sections, question navigator, answer 
 - Reading prototype contains multiple items per set.
 - Direct submit handler updated.
 - Further quality/content review and device testing remain required.
+
+
+### v10 reliability patch
+- Removed native confirm dependency from section transition and final submit to improve iOS/Safari reliability.
+- Expanded listening practice variant count. These are original practice variations, not official JLPT items.

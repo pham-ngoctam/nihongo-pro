@@ -80,3 +80,9 @@ Added a timed practice exam area for N5-N1 with section timer, answer selection,
 ## v9 Exam reliability patch
 - Set-specific rotated question pools, increased section quotas, result review displays choices, submit confirmation.
 - Original generated practice content; still a prototype rather than a full validated official JLPT-length exam.
+
+
+## v10 mobile exam fix
+- Section transitions no longer depend on browser confirm dialogs.
+- End-and-score button directly submits results.
+- Listening practice pools expanded with additional original practice variants; variants are clearly described as transformed practice, not authentic JLPT recordings.

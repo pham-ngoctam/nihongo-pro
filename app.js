@@ -249,7 +249,7 @@ function examQuestionBank(level,setNo=1){
  Object.keys(bank).forEach(k=>{
    let pool=bank[k];
    if(k==='reading' && pool.length){pool=pool.map((q,i)=>({...q,prompt:q.prompt+ (i?` (選択 ${i+1})`:''), passage:q.passage+ (i?`\n\n${['筆者は具体例を挙げて説明している。','この点について、今後も考える必要がある。','一方で、別の意見も見られる。','したがって、状況に応じた判断が重要だ。'][i%4]}`:'' )}));}
-   if(k==='listening' && pool.length<5){const original=pool.slice();for(let n=0;n<5;n++){const q=original[n%original.length];pool.push({...q,prompt:q.prompt+` (問${n+1})`,script:q.script+ (n>=original.length?'\nもう一度、重要な点を確認してください。':'')});}}
+   if(k==='listening' && pool.length<10){const original=pool.slice();const addOns=['\n女：分かりました。ありがとうございます。','\n男：それでは、その予定でお願いします。','\n女：忘れないようにメモしておきます。','\n男：なるほど。助かりました。','\n女：では、後で確認しましょう。','\n男：はい、よろしくお願いします。','\n女：そうですね。気を付けます。'];for(let n=0;n<10-original.length;n++){const q=original[n%original.length];pool.push({...q,prompt:q.prompt+`（追加練習 ${n+1}）`,script:q.script+addOns[n%addOns.length],explanation:'会話の重要情報を聞き取る練習です。※追加練習用に会話を変形しています。'});}}
    const rotated=pool.slice(offset%Math.max(pool.length,1)).concat(pool.slice(0,offset%Math.max(pool.length,1)));
    bank[k]=shuffleExam(rotated.map(q=>({...q,setNo})).slice(0,k==='vocab'||k==='grammar'?pool.length:Math.max(5,pool.length)));
  });return bank;
@@ -281,12 +281,12 @@ function renderExamQuestion(){
  $('#flagExam')?.addEventListener('click',()=>{es.flags[q.id]=!es.flags[q.id];renderExamQuestion()});
  $('#examPrev')?.addEventListener('click',()=>{es.idx--;renderExamQuestion()});
  $('#examNext')?.addEventListener('click',()=>{if(es.idx<qs.length-1){es.idx++;renderExamQuestion()}else finishExamSection(false)});
- $('#examSubmitAll')?.addEventListener('click',()=>{if(confirm('試験を終了して採点しますか？ 未回答も含めて採点します。'))finishExam();});
+ $('#examSubmitAll')?.addEventListener('click',()=>finishExam());
  $('#playListening')?.addEventListener('click',()=>speak(q.script,0.85));
 }
 function finishExamSection(auto=false){
  if(!examState)return;const es=examState;if(examTick){clearInterval(examTick);examTick=null}
- const next=es.section+1;if(next<es.blue.length){if(auto||confirm(`${es.blue[es.section].name}を終了し、次のセクションへ進みますか？`)){es.section=next;es.idx=0;es.remaining=es.blue[next].minutes*60;renderExamQuestion();runExamClock()}else runExamClock()}else finishExam();
+ const next=es.section+1;if(next<es.blue.length){es.section=next;es.idx=0;es.remaining=es.blue[next].minutes*60;renderExamQuestion();runExamClock();}else finishExam();
 }
 function finishExam(){
  if(!examState)return;if(examTick){clearInterval(examTick);examTick=null}if(window.speechSynthesis)window.speechSynthesis.cancel();
