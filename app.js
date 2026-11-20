@@ -223,41 +223,29 @@ const examBlueprint={
 };
 const examSets={N5:3,N4:3,N3:3,N2:3,N1:3};
 function shuffleExam(a){return a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(z=>z.x)}
-function examQuestionBank(level,setNo){
- const vv=vocab[level]||vocab.N5, gg=grammar[level]||grammar.N5;
- let bank={vocab:[],grammar:[],reading:[],listening:[]};
- vv.forEach((w,i)=>{
-  let distract=shuffleExam(vv.filter(x=>x!==w).map(x=>x[2])).slice(0,3);
-  if(distract.length<3)distract=['意味','行動','場所'].slice(0,3);
-  bank.vocab.push({type:'vocab',kind:'語彙',prompt:`「${w[0]}（${w[1]}）」の意味に最も近いものを選びなさい。`,choices:shuffleExam([w[2],...distract]),answer:w[2],explanation:`${w[0]}（${w[1]}）= ${w[2]}`});
-  bank.vocab.push({type:'vocab',kind:'文脈',prompt:`文の（　）に入る最も適切な言葉を選びなさい。\n${w[0]}について、正しい意味を選んでください。`,choices:shuffleExam([w[2],...distract]),answer:w[2],explanation:`対象語：${w[0]}（${w[1]}）`});
- });
- gg.forEach(g=>{
-  bank.grammar.push({type:'grammar',kind:'文法',prompt:`次の表現「${g[0]}」の使い方として最も適切なものを選びなさい。`,choices:shuffleExam([g[1],'反対の意味を表す表現','時間・日付だけを表す表現','人の名前を表す表現']),answer:g[1],explanation:g[2]});
-  bank.grammar.push({type:'grammar',kind:'文法',prompt:`${g[2]}\nこの文法表現に関する説明として適切なものを選びなさい。`,choices:shuffleExam([g[1],'過去形だけで使う','名詞だけを修飾する','必ず疑問文になる']),answer:g[1],explanation:g[2]});
- });
- const readingSamples=[
- {text:'最近、仕事が忙しくなりました。それで、毎朝少し早く起きて、日本語を勉強することにしました。短い時間でも、毎日続けることが大切だと思っています。',question:'筆者は何を大切だと考えていますか。',answer:'短い時間でも毎日勉強を続けること',wrong:['週末だけ長時間勉強すること','仕事を辞めて勉強すること','毎日同じ本を買うこと']},
- {text:'店では、商品を買う前に値段と品質を確認することが大切です。安い商品でも、すぐに壊れてしまえば、結局高くつく場合があります。',question:'筆者が伝えたいことは何ですか。',answer:'値段だけでなく品質も確認する',wrong:['高い商品だけを買う','買い物は急いで済ませる','品質は値段と関係ない']},
- {text:'この図書館では、利用者が多い時間帯に席を予約できません。席を使い終わったら、次の人のために荷物を持って移動してください。',question:'この図書館で注意することは何ですか。',answer:'席を使い終わったら空ける',wrong:['席を事前に予約する','荷物を置いて席を確保する','利用者が少ない時間に閉館する']}
- ];
- readingSamples.forEach(r=>bank.reading.push({type:'reading',kind:'読解',passage:r.text,prompt:r.question,choices:shuffleExam([r.answer,...r.wrong]),answer:r.answer,explanation:'本文の内容を確認して選びます。'}));
- const listens=[
- {dialog:'男：明日の会議、何時からでしたっけ。\n女：予定では十時ですが、資料の準備があるので、九時半までに来てください。',question:'男の人は何時までに来る必要がありますか。',answer:'九時半',wrong:['九時','十時','十時半']},
- {dialog:'女：週末、映画を見に行かない？\n男：ごめん。土曜日は仕事だけど、日曜日なら大丈夫だよ。',question:'男の人はいつ行けますか。',answer:'日曜日',wrong:['金曜日','土曜日','両日とも行けない']},
- {dialog:'店員：こちらの商品は本日、二割引きです。\n客：では、二つ買うといくらになりますか。\n店員：一つ千円ですから、二つで千六百円になります。',question:'二つ買うといくらですか。',answer:'千六百円',wrong:['千円','二千円','千八百円']}
- ];
- listens.forEach(r=>bank.listening.push({type:'listening',kind:'聴解',script:r.dialog,prompt:r.question,choices:shuffleExam([r.answer,...r.wrong]),answer:r.answer,explanation:'会話の情報を聞き取って答えます。'}));
- // Duplicate and rotate original items into practice sets; small source bank is explicitly labeled as a pilot.
- const selected={};Object.keys(bank).forEach(k=>selected[k]=bank[k].length?shuffleExam(bank[k]).map(q=>({...q,choices:shuffleExam(q.choices)})):[]);
- return selected;
+function examQuestionBank(level,setNo=1){
+ const vv=(vocab[level]||vocab.N5).slice(),gg=(grammar[level]||grammar.N5).slice();
+ const additions={START:[['駅','えき','station'],['電話','でんわ','phone'],['仕事','しごと','work']],N5:[['料理','りょうり','cooking'],['旅行','りょこう','travel'],['写真','しゃしん','photo']],N4:[['故障','こしょう','breakdown'],['運転','うんてん','driving'],['景色','けしき','scenery']],N3:[['努力','どりょく','effort'],['割合','わりあい','ratio'],['条件','じょうけん','condition']],N2:[['制度','せいど','system'],['状況','じょうきょう','situation'],['責任','せきにん','responsibility']],N1:[['措置','そち','measure'],['妥当','だとう','reasonable'],['著しい','いちじるしい','remarkable']]}[level]||[];
+ vv.push(...additions);const bank={vocab:[],grammar:[],reading:[],listening:[]};
+ const readings=['かんきょう','えいきょう','かくにん','けっか','よてい','げんいん','けいこう','いじ','てきせつ','たいしょう','はんだん','こうけん','そくしん','けねん','けんちょ','しゅし','だかい','すいこう','ひつよう','じゅんび'];
+ vv.forEach(v=>{bank.vocab.push({type:'vocab',kind:'漢字読み',prompt:`次の言葉の読み方として最も適切なものを選びなさい。\n\n${v[0]}`,choices:shuffleExam([v[1],...shuffleExam(readings.filter(x=>x!==v[1])).slice(0,3)]),answer:v[1],explanation:`${v[0]}：${v[1]}（意味：${v[2]}）`});});
+ const grEx={START:['毎朝、学校へ（　）。','水を（　）。','本を（　）。'],N5:['昨日、友達と映画を（　）。','毎日、日本語を（　）。','駅まで歩いて（　）。'],N4:['雨が降っていたので、家に（　）。','忘れないように、メモを（　）。','準備ができたら、すぐに（　）。'],N3:['原因を確認してから、対応を（　）。','予定が変更になったので、関係者に（　）。','環境への影響を十分に（　）。'],N2:['状況を踏まえて、適切に（　）。','問題の解決に向けて、対策を（　）。','結果を分析し、判断を（　）。'],N1:['計画の趣旨を踏まえ、施策を（　）。','懸念を払拭するため、説明を（　）。','停滞した状況を打開する策を（　）。']}[level];
+ const correct={START:['行きます','飲みます','読みます'],N5:['見ました','勉強します','行きます'],N4:['帰りました','書きました','進みます'],N3:['取る','知らせる','考える'],N2:['判断する','講じる','下す'],N1:['遂行する','行う','講じる']}[level];
+ const wrong={START:['食べます','寝ます','来ます'],N5:['泳ぎました','買いました','休みました'],N4:['走りました','聞きました','開けました'],N3:['待つ','忘れる','止める'],N2:['延期する','中止する','放置する'],N1:['放棄する','回避する','撤回する']}[level];
+ gg.forEach((g,i)=>bank.grammar.push({type:'grammar',kind:'文法',prompt:`文の（　）に入る最も適切なものを選びなさい。\n\n${grEx[i%3]}`,choices:shuffleExam([correct[i%3],...wrong]),answer:correct[i%3],explanation:`学習項目：${g[0]}。${g[2]}`}));
+ const r={START:['週末は家で本を読みました。日曜日は友達と公園へ行きました。','日曜日、どこへ行きましたか。','公園',['学校','会社','駅']],N5:['田中さんは毎朝七時に起きます。朝ご飯を食べて、八時に家を出ます。','田中さんは何時に家を出ますか。','八時',['七時','九時','十時']],N4:['来週の旅行のために、ホテルを予約しました。電車の切符も買いました。','旅行のために何をしましたか。','ホテルを予約し、切符を買った',['荷物を送った','友達に電話した','旅行を延期した']],N3:['最近、駅前に新しい図書館ができた。静かな場所で勉強できるので、学生だけでなく会社員もよく利用している。','図書館がよく利用される理由は何ですか。','静かに勉強できるから',['本を無料でもらえるから','駅から遠いから','夜遅くまで飲食できるから']],N2:['新しい制度を導入する際には、利点だけでなく、利用者への影響も十分に検討する必要がある。準備不足のまま実施すると、予想外の問題が生じる可能性がある。','筆者が制度導入前に必要だと述べていることは何か。','利点と利用者への影響を検討する',['すぐに実施して結果を見る','利用者を限定する','従来の制度を必ず廃止する']],N1:['効率を重視するあまり、過程における検討を省いてしまうと、短期的には成果が出ても、長期的には問題を招くことがある。重要なのは、目的と手段の妥当性を不断に見直す姿勢である。','筆者の主張に最も近いものはどれか。','手段の妥当性を継続的に検討すべきだ',['効率を最優先し検討を省くべきだ','短期的成果だけを評価すべきだ','目的は変更せず手段も固定すべきだ']]}[level];
+ bank.reading.push({type:'reading',kind:'読解・短文',passage:r[0],prompt:r[1],choices:shuffleExam([r[2],...r[3]]),answer:r[2],explanation:'本文の内容を照合してください。'});
+ const l={START:['女：これは何ですか。\n男：本です。','これは何ですか。','本',['水','かばん','電話']],N5:['男：明日は何時に会いますか。\n女：十時に駅で会いましょう。','二人は何時に会いますか。','十時',['九時','十一時','十二時']],N4:['女：買い物に行きますが、何か必要ですか。\n男：牛乳をお願いします。\n女：わかりました。','女の人は何を買いますか。','牛乳',['パン','卵','お茶']],N3:['男：会議の資料はもう印刷しましたか。\n女：まだです。午後までに印刷して、部長に渡します。','女の人は午後までに何をしますか。','資料を印刷して部長に渡す',['会議を延期する','部長に電話する','資料を作り直す']],N2:['女：今回の調査結果、予定より遅れていますね。\n男：ええ。ただ、データの確認が終われば、明日の午前中には報告できると思います。','男の人はいつ報告できると考えていますか。','明日の午前中',['今日の夕方','来週','確認が終わる前']],N1:['男：新しい方針は発表されましたが、現場の意見が十分に反映されていないという指摘もあります。\n女：そうですね。実施時期を含め、もう一度調整する余地があるか検討すべきでしょう。','女の人は何を検討すべきだと言っていますか。','実施時期などを再調整できるか',['方針を直ちに撤回する','現場の意見を無視する','発表を延期せず進める']]}[level];
+ bank.listening.push({type:'listening',kind:'聴解',script:l[0],prompt:l[1],choices:shuffleExam([l[2],...l[3]]),answer:l[2],explanation:'会話の内容を聞き取って選びます。'});
+ const out={};Object.keys(bank).forEach(k=>out[k]=bank[k].map(q=>({...q,choices:shuffleExam(q.choices)})));return out;
 }
+
 function renderExam(){
  const lev=state.selectedLevel||'N5',sets=examSets[lev]||3,blue=examBlueprint[lev];
  page('模擬試験 JLPT','形式別・時間制限・設問ナビゲーションを備えた独自練習セット。公式過去問ではありません。',`<article class="content-card"><h2>受験レベル</h2><div class="toolbar">${['N5','N4','N3','N2','N1'].map(x=>`<button class="chip ${lev===x?'active':''}" data-exlevel="${x}">${x}</button>`).join('')}</div><h3>${lev} · 模擬セット</h3><div class="toolbar">${Array.from({length:sets},(_,i)=>`<button class="chip" data-exset="${i+1}">セット ${i+1}</button>`).join('')}</div><h3>試験構成</h3>${blue.map(s=>`<div class="lesson-row"><b>${s.name}</b><span>${s.minutes}分</span></div>`).join('')}<p class="muted">問題バンクは現在試作規模です。Listeningではブラウザーの日本語音声読み上げを使います。標準化得点は算出しません。</p><button class="primary-btn" id="startExam" type="button">セット1を開始</button></article><article class="content-card"><h3>受験履歴</h3>${(state.progress.examHistory||[]).slice(-8).reverse().map(x=>`<div class="lesson-row"><b>${x.level} · Set ${x.set||1}</b><span>${x.score}/${x.total} · ${x.date}</span></div>`).join('')||'<p class="muted">まだ受験履歴がありません。</p>'}</article>`);
  document.querySelectorAll('[data-exlevel]').forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.exlevel;renderExam()});
- let chosenSet=1;document.querySelectorAll('[data-exset]').forEach(b=>b.onclick=()=>{chosenSet=+b.dataset.exset;document.querySelectorAll('[data-exset]').forEach(x=>x.classList.toggle('active',+x.dataset.exset===chosenSet));$('#startExam').textContent=`セット${chosenSet}を開始`});
- const start=$('#startExam');if(start)start.onclick=()=>startExam(lev,chosenSet);
+ let chosenSet=state.selectedExamSet||1;document.querySelectorAll('[data-exset]').forEach(b=>b.classList.toggle('active',+b.dataset.exset===chosenSet));document.querySelectorAll('[data-exset]').forEach(b=>b.onclick=()=>{chosenSet=+b.dataset.exset;state.selectedExamSet=chosenSet;document.querySelectorAll('[data-exset]').forEach(x=>x.classList.toggle('active',+x.dataset.exset===chosenSet));$('#startExam').textContent=`セット${chosenSet}を開始`});
+ const start=$('#startExam');if(start)start.onclick=()=>startExam(lev,state.selectedExamSet||chosenSet);
 }
 function startExam(level,setNo=1){
  if(examTick){clearInterval(examTick);examTick=null}if(window.speechSynthesis)window.speechSynthesis.cancel();

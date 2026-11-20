@@ -62,3 +62,9 @@ Added a timed practice exam area for N5-N1 with section timer, answer selection,
 - N5/N4/N3 separated into vocabulary, grammar/reading, listening; N2/N1 into language knowledge/reading and listening.
 - Listening practice currently uses original scripts and browser Japanese speech synthesis (not recorded exam audio).
 - Original pilot items only; not an official-length or validated JLPT score simulator. Larger bank/audio recording work remains.
+
+
+## v7 exam content rebuild
+- Exam question prompts and answer choices are Japanese-only during testing; Vietnamese appears only in review/explanations.
+- Added level-specific original reading and listening pilot content.
+- This remains a small practice bank, not a full JLPT-length exam; listening uses browser speech synthesis.

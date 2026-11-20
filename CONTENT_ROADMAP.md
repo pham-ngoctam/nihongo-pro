@@ -45,3 +45,9 @@ Single delegated click handler routes sidebar and dynamic module buttons; view r
 
 ## v6 mock exam redesign
 The exam screen is redesigned around timed sections, question navigator, answer state, review flags and end-of-test results. Current pilot question bank is limited; listening relies on browser speech synthesis. This should not be represented as an official full-length JLPT mock.
+
+
+## v7 exam content rebuild
+- Exam question prompts and answer choices are Japanese-only during testing; Vietnamese appears only in review/explanations.
+- Added level-specific original reading and listening pilot content.
+- This remains a small practice bank, not a full JLPT-length exam; listening uses browser speech synthesis.
