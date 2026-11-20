@@ -51,3 +51,10 @@ The exam screen is redesigned around timed sections, question navigator, answer 
 - Exam question prompts and answer choices are Japanese-only during testing; Vietnamese appears only in review/explanations.
 - Added level-specific original reading and listening pilot content.
 - This remains a small practice bank, not a full JLPT-length exam; listening uses browser speech synthesis.
+
+
+## v8 issue remediation
+- Listening now has multiple prompts instead of one item per set.
+- Reading prototype contains multiple items per set.
+- Direct submit handler updated.
+- Further quality/content review and device testing remain required.

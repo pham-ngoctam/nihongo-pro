@@ -68,3 +68,15 @@ Added a timed practice exam area for N5-N1 with section timer, answer selection,
 - Exam question prompts and answer choices are Japanese-only during testing; Vietnamese appears only in review/explanations.
 - Added level-specific original reading and listening pilot content.
 - This remains a small practice bank, not a full JLPT-length exam; listening uses browser speech synthesis.
+
+
+## v8 corrective pass
+- Expanded listening items from a single item to multiple short independent dialogues per level.
+- Added five short reading practice items per level (still prototype quality, not a full official-pattern bank).
+- Simplified the submit-and-grade control to directly finish and render the results.
+- The question bank remains experimental and should not be advertised as a full JLPT replica.
+
+
+## v9 Exam reliability patch
+- Set-specific rotated question pools, increased section quotas, result review displays choices, submit confirmation.
+- Original generated practice content; still a prototype rather than a full validated official JLPT-length exam.
