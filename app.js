@@ -212,54 +212,85 @@ async function logout(){if(sb)await sb.auth.signOut();state.user=null;state.prof
 function updateIdentity(){$("#sideName").textContent=state.profileName;$("#sideStatus").textContent=state.user?"Đã đăng nhập · Đồng bộ":"Đang học trên thiết bị này";$("#sideAvatar").textContent=(state.profileName||"学").slice(0,1).toUpperCase();$("#accountBtn").textContent=state.user?"✓":"👤";renderStats()}
 function bindViewButtons(){/* Navigation is handled by the single delegated listener below. */}
 
-// JLPT timed mock exam module — original practice items derived from the site's vocabulary/grammar banks.
+// JLPT-style mock exam engine v6: section structure, question navigator, review flags, and listening practice.
 let examState=null, examTick=null;
-const examTimes={N5:[20,40],N4:[25,55],N3:[30,70],N2:[105,50],N1:[110,55]};
-function examQuestionBank(level){
- const vv=vocab[level]||vocab.N5, gg=grammar[level]||grammar.N5;let qs=[];
- vv.forEach((w,i)=>{let distract=[vv[(i+1)%vv.length][2],vv[(i+2)%vv.length][2],vv[(i+3)%vv.length][2]];let opts=[w[2],...distract].filter((x,j,ar)=>ar.indexOf(x)===j);while(opts.length<4)opts.push("—");qs.push({section:0,q:`「${w[0]}（${w[1]}）」の意味はどれですか。`,opts:opts.slice(0,4).sort(()=>Math.random()-.5),answer:w[2],ex:`${w[0]}（${w[1]}）= ${w[2]}`})});
- gg.forEach((g,i)=>qs.push({section:level==='N5'||level==='N4'?1:0,q:`次の表現「${g[0]}」の意味・使い方として適切なのは？`,opts:[g[1],"反対の意味を表す","時間だけを表す","挨拶の表現"],answer:g[1],ex:g[2]}));
- const passages=[{text:"最近、仕事が忙しくなりました。それで、毎朝少し早く起きて、日本語を勉強することにしました。",ask:"筆者は何をすることにしましたか。",ans:"毎朝早く起きて日本語を勉強する",wrong:["週末だけ勉強する","仕事を辞める","夜遅く寝る"]},{text:"店では、商品を買う前に値段と品質を確認することが大切です。",ask:"買う前に何を確認しますか。",ans:"値段と品質",wrong:["店の営業時間","店員の名前","交通手段"]}];
- passages.forEach(r=>qs.push({section:1,q:r.text+"\n\n"+r.ask,opts:[r.ans,...r.wrong],answer:r.ans,ex:r.text}));
- return qs.map(q=>({...q,opts:q.opts}));
+const examBlueprint={
+ N5:[{name:'文字・語彙',minutes:20,types:['vocab']},{name:'文法・読解',minutes:40,types:['grammar','reading']},{name:'聴解',minutes:30,types:['listening']}],
+ N4:[{name:'文字・語彙',minutes:25,types:['vocab']},{name:'文法・読解',minutes:55,types:['grammar','reading']},{name:'聴解',minutes:35,types:['listening']}],
+ N3:[{name:'文字・語彙',minutes:30,types:['vocab']},{name:'文法・読解',minutes:70,types:['grammar','reading']},{name:'聴解',minutes:40,types:['listening']}],
+ N2:[{name:'言語知識・読解',minutes:105,types:['vocab','grammar','reading']},{name:'聴解',minutes:50,types:['listening']}],
+ N1:[{name:'言語知識・読解',minutes:110,types:['vocab','grammar','reading']},{name:'聴解',minutes:55,types:['listening']}]
+};
+const examSets={N5:3,N4:3,N3:3,N2:3,N1:3};
+function shuffleExam(a){return a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(z=>z.x)}
+function examQuestionBank(level,setNo){
+ const vv=vocab[level]||vocab.N5, gg=grammar[level]||grammar.N5;
+ let bank={vocab:[],grammar:[],reading:[],listening:[]};
+ vv.forEach((w,i)=>{
+  let distract=shuffleExam(vv.filter(x=>x!==w).map(x=>x[2])).slice(0,3);
+  if(distract.length<3)distract=['意味','行動','場所'].slice(0,3);
+  bank.vocab.push({type:'vocab',kind:'語彙',prompt:`「${w[0]}（${w[1]}）」の意味に最も近いものを選びなさい。`,choices:shuffleExam([w[2],...distract]),answer:w[2],explanation:`${w[0]}（${w[1]}）= ${w[2]}`});
+  bank.vocab.push({type:'vocab',kind:'文脈',prompt:`文の（　）に入る最も適切な言葉を選びなさい。\n${w[0]}について、正しい意味を選んでください。`,choices:shuffleExam([w[2],...distract]),answer:w[2],explanation:`対象語：${w[0]}（${w[1]}）`});
+ });
+ gg.forEach(g=>{
+  bank.grammar.push({type:'grammar',kind:'文法',prompt:`次の表現「${g[0]}」の使い方として最も適切なものを選びなさい。`,choices:shuffleExam([g[1],'反対の意味を表す表現','時間・日付だけを表す表現','人の名前を表す表現']),answer:g[1],explanation:g[2]});
+  bank.grammar.push({type:'grammar',kind:'文法',prompt:`${g[2]}\nこの文法表現に関する説明として適切なものを選びなさい。`,choices:shuffleExam([g[1],'過去形だけで使う','名詞だけを修飾する','必ず疑問文になる']),answer:g[1],explanation:g[2]});
+ });
+ const readingSamples=[
+ {text:'最近、仕事が忙しくなりました。それで、毎朝少し早く起きて、日本語を勉強することにしました。短い時間でも、毎日続けることが大切だと思っています。',question:'筆者は何を大切だと考えていますか。',answer:'短い時間でも毎日勉強を続けること',wrong:['週末だけ長時間勉強すること','仕事を辞めて勉強すること','毎日同じ本を買うこと']},
+ {text:'店では、商品を買う前に値段と品質を確認することが大切です。安い商品でも、すぐに壊れてしまえば、結局高くつく場合があります。',question:'筆者が伝えたいことは何ですか。',answer:'値段だけでなく品質も確認する',wrong:['高い商品だけを買う','買い物は急いで済ませる','品質は値段と関係ない']},
+ {text:'この図書館では、利用者が多い時間帯に席を予約できません。席を使い終わったら、次の人のために荷物を持って移動してください。',question:'この図書館で注意することは何ですか。',answer:'席を使い終わったら空ける',wrong:['席を事前に予約する','荷物を置いて席を確保する','利用者が少ない時間に閉館する']}
+ ];
+ readingSamples.forEach(r=>bank.reading.push({type:'reading',kind:'読解',passage:r.text,prompt:r.question,choices:shuffleExam([r.answer,...r.wrong]),answer:r.answer,explanation:'本文の内容を確認して選びます。'}));
+ const listens=[
+ {dialog:'男：明日の会議、何時からでしたっけ。\n女：予定では十時ですが、資料の準備があるので、九時半までに来てください。',question:'男の人は何時までに来る必要がありますか。',answer:'九時半',wrong:['九時','十時','十時半']},
+ {dialog:'女：週末、映画を見に行かない？\n男：ごめん。土曜日は仕事だけど、日曜日なら大丈夫だよ。',question:'男の人はいつ行けますか。',answer:'日曜日',wrong:['金曜日','土曜日','両日とも行けない']},
+ {dialog:'店員：こちらの商品は本日、二割引きです。\n客：では、二つ買うといくらになりますか。\n店員：一つ千円ですから、二つで千六百円になります。',question:'二つ買うといくらですか。',answer:'千六百円',wrong:['千円','二千円','千八百円']}
+ ];
+ listens.forEach(r=>bank.listening.push({type:'listening',kind:'聴解',script:r.dialog,prompt:r.question,choices:shuffleExam([r.answer,...r.wrong]),answer:r.answer,explanation:'会話の情報を聞き取って答えます。'}));
+ // Duplicate and rotate original items into practice sets; small source bank is explicitly labeled as a pilot.
+ const selected={};Object.keys(bank).forEach(k=>selected[k]=bank[k].length?shuffleExam(bank[k]).map(q=>({...q,choices:shuffleExam(q.choices)})):[]);
+ return selected;
 }
 function renderExam(){
- page("模擬試験 JLPT","本番を意識した時間制限付き練習。問題は独自作成の練習問題で、公式過去問ではありません。",`<article class="content-card"><h2>試験を選択</h2><div class="toolbar">${['N5','N4','N3','N2','N1'].map(x=>`<button class="chip ${state.selectedLevel===x?'active':''}" data-exlevel="${x}">${x}</button>`).join('')}</div><h3>${state.selectedLevel}</h3><p>時間：${examTimes[state.selectedLevel].map((t,i)=>`${i+1}部 ${t}分`).join(' · ')}</p><p>試験中は答えと解説は表示されません。終了後に結果と解説を確認できます。</p><button class="primary-btn" id="startExam" type="button">模擬試験を開始</button></article><article class="content-card"><h3>試験履歴</h3>${(state.progress.examHistory||[]).slice(-5).reverse().map(x=>`<div class="lesson-row"><b>${x.level}</b><span>${x.score}/${x.total} · ${x.date}</span></div>`).join('')||'<p class="muted">まだ受験履歴がありません。</p>'}</article>`);
+ const lev=state.selectedLevel||'N5',sets=examSets[lev]||3,blue=examBlueprint[lev];
+ page('模擬試験 JLPT','形式別・時間制限・設問ナビゲーションを備えた独自練習セット。公式過去問ではありません。',`<article class="content-card"><h2>受験レベル</h2><div class="toolbar">${['N5','N4','N3','N2','N1'].map(x=>`<button class="chip ${lev===x?'active':''}" data-exlevel="${x}">${x}</button>`).join('')}</div><h3>${lev} · 模擬セット</h3><div class="toolbar">${Array.from({length:sets},(_,i)=>`<button class="chip" data-exset="${i+1}">セット ${i+1}</button>`).join('')}</div><h3>試験構成</h3>${blue.map(s=>`<div class="lesson-row"><b>${s.name}</b><span>${s.minutes}分</span></div>`).join('')}<p class="muted">問題バンクは現在試作規模です。Listeningではブラウザーの日本語音声読み上げを使います。標準化得点は算出しません。</p><button class="primary-btn" id="startExam" type="button">セット1を開始</button></article><article class="content-card"><h3>受験履歴</h3>${(state.progress.examHistory||[]).slice(-8).reverse().map(x=>`<div class="lesson-row"><b>${x.level} · Set ${x.set||1}</b><span>${x.score}/${x.total} · ${x.date}</span></div>`).join('')||'<p class="muted">まだ受験履歴がありません。</p>'}</article>`);
  document.querySelectorAll('[data-exlevel]').forEach(b=>b.onclick=()=>{state.selectedLevel=b.dataset.exlevel;renderExam()});
- const start=$('#startExam'); if(start) start.onclick=(e)=>{e.preventDefault();e.stopPropagation();startExam(state.selectedLevel)};
+ let chosenSet=1;document.querySelectorAll('[data-exset]').forEach(b=>b.onclick=()=>{chosenSet=+b.dataset.exset;document.querySelectorAll('[data-exset]').forEach(x=>x.classList.toggle('active',+x.dataset.exset===chosenSet));$('#startExam').textContent=`セット${chosenSet}を開始`});
+ const start=$('#startExam');if(start)start.onclick=()=>startExam(lev,chosenSet);
 }
-function startExam(level){
- if(examTick){clearInterval(examTick);examTick=null}
- const questions=examQuestionBank(level);
- examState={level,questions,answers:{},flags:{},idx:0,section:0,sectionTimes:examTimes[level],remaining:examTimes[level][0]*60,started:Date.now()};
- examState.questions=examState.questions.map((q,i)=>({...q,id:i}));
+function startExam(level,setNo=1){
+ if(examTick){clearInterval(examTick);examTick=null}if(window.speechSynthesis)window.speechSynthesis.cancel();
+ const bank=examQuestionBank(level,setNo),blue=examBlueprint[level],questions=[];
+ blue.forEach((section,si)=>{section.types.forEach(type=>(bank[type]||[]).forEach(q=>questions.push({...q,section:si,id:questions.length})))});
+ examState={level,set:setNo,blue,questions,answers:{},flags:{},idx:0,section:0,remaining:blue[0].minutes*60,started:Date.now()};
  renderExamQuestion();runExamClock();
 }
-function runExamClock(){
- if(examTick)clearInterval(examTick);
- examTick=setInterval(()=>{if(!examState){clearInterval(examTick);examTick=null;return}examState.remaining--;if(examState.remaining<=0){finishExamSection();return}const timer=$('#examTimer');if(timer)timer.textContent=formatExamTime(examState.remaining)},1000);
-}
 function formatExamTime(n){return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`}
+function runExamClock(){if(examTick)clearInterval(examTick);examTick=setInterval(()=>{if(!examState){clearInterval(examTick);examTick=null;return}examState.remaining--;if(examState.remaining<=0){finishExamSection(true);return}let el=$('#examTimer');if(el)el.textContent=formatExamTime(examState.remaining)},1000)}
+function examSectionQuestions(){return examState.questions.filter(q=>q.section===examState.section)}
 function renderExamQuestion(){
- const es=examState;if(!es)return;
- const sectionQuestions=es.questions.filter(q=>q.section===es.section);
- if(!sectionQuestions.length){finishExamSection();return}
- es.idx=Math.max(0,Math.min(es.idx,sectionQuestions.length-1));const q=sectionQuestions[es.idx];
- page(`JLPT ${es.level} · 部 ${es.section+1}`,`練習模擬 · ${sectionQuestions.length} 問`,`<article class="study-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b>${es.level} · ${es.section+1}部</b><strong id="examTimer">${formatExamTime(es.remaining)}</strong></div><div class="content-card"><span class="eyebrow">問題 ${es.idx+1}/${sectionQuestions.length}</span><h2 class="jp" style="white-space:pre-line">${q.q}</h2>${q.opts.map((o,i)=>`<button class="secondary-btn" type="button" style="display:block;width:100%;text-align:left;margin:8px 0" data-exanswer="${i}" ${es.answers[q.id]===o?'disabled':''}>${['A','B','C','D'][i]}. ${o}</button>`).join('')}<p>${es.answers[q.id]!==undefined?'Đã trả lời':''}</p></div><div class="inline-actions"><button class="secondary-btn" id="examPrev" type="button" ${es.idx===0?'disabled':''}>← Trước</button><button class="primary-btn" id="examNext" type="button">${es.idx===sectionQuestions.length-1?'Kết thúc phần':'Tiếp →'}</button></div><p class="muted">Không hiển thị đáp án trong lúc thi.</p></article>`);
- document.querySelectorAll('[data-exanswer]').forEach(b=>b.onclick=()=>{es.answers[q.id]=q.opts[+b.dataset.exanswer];renderExamQuestion()});
- const prev=$('#examPrev'),next=$('#examNext');if(prev)prev.onclick=()=>{es.idx--;renderExamQuestion()};if(next)next.onclick=()=>{if(es.idx<sectionQuestions.length-1){es.idx++;renderExamQuestion()}else finishExamSection()};
+ const es=examState;if(!es)return;const qs=examSectionQuestions();if(!qs.length){finishExamSection(true);return}es.idx=Math.max(0,Math.min(es.idx,qs.length-1));const q=qs[es.idx],list=qs.map((x,i)=>`<button class="chip ${i===es.idx?'active':''} ${es.answers[x.id]!==undefined?'answered':''} ${es.flags[x.id]?'flagged':''}" data-jump="${i}" aria-label="Câu ${i+1}">${i+1}${es.flags[x.id]?' ⚑':''}</button>`).join('');
+ const questionBody=q.type==='reading'?`<div class="content-card"><h3>文章</h3><p class="jp exam-passage">${q.passage}</p></div><h2 class="jp">${q.prompt}</h2>`:q.type==='listening'?`<div class="content-card"><h3>聴解</h3><p>Hãy nghe đoạn hội thoại, sau đó chọn đáp án.</p><button class="primary-btn" id="playListening" type="button">▶ Nghe hội thoại</button></div><h2>${q.prompt}</h2>`:`<h2 class="jp exam-prompt">${q.prompt}</h2>`;
+ page(`JLPT ${es.level} · ${es.blue[es.section].name}`,`セット${es.set} · ${qs.length}問`, `<article class="study-card"><div class="exam-top"><b>${es.blue[es.section].name}</b><strong id="examTimer">${formatExamTime(es.remaining)}</strong></div><div class="exam-question"><div class="eyebrow">問題 ${es.idx+1} / ${qs.length} · ${q.kind||q.type}</div>${questionBody}${q.choices.map((o,i)=>`<button class="exam-choice ${es.answers[q.id]===o?'selected':''}" data-exanswer="${i}" type="button">${['A','B','C','D'][i]}. ${o}</button>`).join('')}</div><div class="exam-actions"><button class="secondary-btn" id="flagExam" type="button">${es.flags[q.id]?'⚑ マーク解除':'⚑ 見直しマーク'}</button><button class="secondary-btn" id="examPrev" ${es.idx===0?'disabled':''} type="button">← 前の問題</button><button class="primary-btn" id="examNext" type="button">${es.idx===qs.length-1?'セクション終了':'次の問題 →'}</button></div><div class="exam-nav"><h3>問題一覧</h3><div class="toolbar">${list}</div><p class="muted">色付き：回答済み · ⚑：見直しマーク</p></div><button class="secondary-btn" id="examSubmitAll" type="button">試験を終了・採点</button></article>`);
+ document.querySelectorAll('[data-exanswer]').forEach(b=>b.onclick=()=>{es.answers[q.id]=q.choices[+b.dataset.exanswer];renderExamQuestion()});
+ document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{es.idx=+b.dataset.jump;renderExamQuestion()});
+ $('#flagExam')?.addEventListener('click',()=>{es.flags[q.id]=!es.flags[q.id];renderExamQuestion()});
+ $('#examPrev')?.addEventListener('click',()=>{es.idx--;renderExamQuestion()});
+ $('#examNext')?.addEventListener('click',()=>{if(es.idx<qs.length-1){es.idx++;renderExamQuestion()}else finishExamSection(false)});
+ $('#examSubmitAll')?.addEventListener('click',()=>{if(confirm('試験を終了して採点しますか？'))finishExam()});
+ $('#playListening')?.addEventListener('click',()=>speak(q.script,0.85));
 }
-function finishExamSection(){
+function finishExamSection(auto=false){
  if(!examState)return;const es=examState;if(examTick){clearInterval(examTick);examTick=null}
- const sections=[...new Set(es.questions.map(q=>q.section))].sort((a,b)=>a-b),next=sections.find(x=>x>es.section);
- if(next!==undefined){es.section=next;es.idx=0;es.remaining=(es.sectionTimes[next]||30)*60;renderExamQuestion();runExamClock()}else finishExam();
+ const next=es.section+1;if(next<es.blue.length){if(auto||confirm(`${es.blue[es.section].name}を終了し、次のセクションへ進みますか？`)){es.section=next;es.idx=0;es.remaining=es.blue[next].minutes*60;renderExamQuestion();runExamClock()}else runExamClock()}else finishExam();
 }
 function finishExam(){
- if(!examState)return;if(examTick){clearInterval(examTick);examTick=null}
+ if(!examState)return;if(examTick){clearInterval(examTick);examTick=null}if(window.speechSynthesis)window.speechSynthesis.cancel();
  const es=examState,correct=es.questions.filter(q=>es.answers[q.id]===q.answer),total=es.questions.length;
- const history={level:es.level,score:correct.length,total,date:new Date().toLocaleDateString(),answers:es.answers};
+ const history={level:es.level,set:es.set,score:correct.length,total,date:new Date().toLocaleDateString(),answers:es.answers};
  state.progress.examHistory=state.progress.examHistory||[];state.progress.examHistory.push(history);saveProgress();examState=null;
- page("Kết quả mô phỏng","Điểm luyện tập — không phải điểm chuẩn hóa chính thức JLPT",`<article class="content-card"><h2>${correct.length}/${total} câu đúng</h2><p>${Math.round(correct.length/Math.max(total,1)*100)}%</p><h3>Đáp án & giải thích</h3>${es.questions.map((q,i)=>`<div class="lesson-row"><div><b>${i+1}. ${q.q}</b><p>${es.answers[q.id]===q.answer?'✓ Đúng':'✗ Sai / bỏ trống'} · Đáp án: ${q.answer}</p><small>${q.ex}</small></div></div>`).join('')}<button class="primary-btn" type="button" data-view="exam">Quay lại kho thi</button></article>`);
+ page('試験結果','練習結果 · JLPT標準化得点ではありません',`<article class="content-card"><h2>${correct.length}/${total}問 正解</h2><p>${Math.round(correct.length/Math.max(total,1)*100)}%</p><h3>分野別</h3>${Object.keys({}).length?'<p></p>':''}${es.blue.map((s,si)=>{let sq=es.questions.filter(q=>q.section===si),sc=sq.filter(q=>history.answers[q.id]===q.answer).length;return `<div class="lesson-row"><b>${s.name}</b><span>${sc}/${sq.length}</span></div>`}).join('')}<h3>答え・解説</h3>${es.questions.map((q,i)=>`<div class="lesson-row"><div><b>${i+1}. ${q.prompt}</b><p>${history.answers[q.id]===q.answer?'✓ 正解':'✗ 不正解 / 未回答'} · 正解：${q.answer}</p>${q.type==='listening'?`<small>${q.script||''}</small><br>`:''}<small>${q.explanation||''}</small></div></div>`).join('')}<button class="primary-btn" type="button" data-view="exam">試験一覧に戻る</button></article>`);
 }
 
 function navigate(view){state.view=view;$("#sidebar").classList.remove("open");document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));const renderers={home:renderHome,kana:renderKana,path:renderPath,vocab:renderVocab,kanji:renderKanji,grammar:renderGrammar,listening:renderListening,reading:renderReading,review:renderReview,quiz:renderQuiz,exam:renderExam,progress:renderProgress,account:renderAccount};if(!renderers[view])view="home";state.view=view;renderers[view]();window.scrollTo(0,0)}

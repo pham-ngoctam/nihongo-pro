@@ -42,3 +42,6 @@ Single delegated click handler routes sidebar and dynamic module buttons; view r
 ## v5 bug fix
 - Mobile sidebar: internal scroll enabled so the lower menu entries are reachable.
 - Mock exam timer and section transitions rewritten to prevent timer duplication/stale intervals.
+
+## v6 mock exam redesign
+The exam screen is redesigned around timed sections, question navigator, answer state, review flags and end-of-test results. Current pilot question bank is limited; listening relies on browser speech synthesis. This should not be represented as an official full-length JLPT mock.

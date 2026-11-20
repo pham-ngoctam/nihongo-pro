@@ -56,3 +56,9 @@ Added a timed practice exam area for N5-N1 with section timer, answer selection,
 - Sidebar navigation now scrolls internally on mobile and desktop when its contents exceed screen height.
 - Mock exam flow rewritten to manage a single timer per section, clamp question navigation, and avoid stale timer loops.
 - This is a hotfix, not a complete JLPT-sized question bank.
+
+## v6 — JLPT-style mock exam redesign
+- Rebuilt mock-exam interface: section structure, timed sections, question navigator, answered state, review flags, end-test scoring/review.
+- N5/N4/N3 separated into vocabulary, grammar/reading, listening; N2/N1 into language knowledge/reading and listening.
+- Listening practice currently uses original scripts and browser Japanese speech synthesis (not recorded exam audio).
+- Original pilot items only; not an official-length or validated JLPT score simulator. Larger bank/audio recording work remains.
