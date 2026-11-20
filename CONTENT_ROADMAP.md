@@ -32,3 +32,8 @@ These counts are a starting content pack, not comprehensive level inventories. T
 
 ## v3 navigation fix
 Single delegated click handler routes sidebar and dynamic module buttons; view rendering is dispatched centrally.
+
+## v4 addition: timed mock exam prototype
+- Timed section flow, answer UI, finish/score/review, local history.
+- Original practice questions only; not copied official past exams.
+- Listening section content, exam-sized validated banks, detailed section timing/structure verification and normalized score estimation remain future work.

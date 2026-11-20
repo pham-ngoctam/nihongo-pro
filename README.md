@@ -47,3 +47,6 @@ Never paste Supabase `service_role` credentials into client-side code.
 ## v3 fix
 - Unified delegated navigation handling for sidebar, dynamically rendered module buttons, and homepage shortcuts.
 - Prevents navigation event handler conflicts and rerouting to home.
+
+## JLPT timed mock exam (v4 package)
+Added a timed practice exam area for N5-N1 with section timer, answer selection, navigation, section transitions, review/explanations after submission, and local exam history. Questions are original practice items generated from the current small content banks; this is a prototype rather than a complete official-length exam bank. Audio/listening sections and fully validated official exam structure are not yet implemented in this prototype.
