@@ -1,4 +1,4 @@
-# Nihongo Pro Ultimate — Content Expansion Package
+# Nihongo Pro Ultimate v3 — Navigation Fix
 
 A responsive static Japanese learning site with Vietnamese explanations and a learning path from START through JLPT N1.
 
@@ -42,3 +42,8 @@ Guest progress is stored locally in the browser on the device. Cloud sync is not
 
 ## Safety note
 Never paste Supabase `service_role` credentials into client-side code.
+
+
+## v3 fix
+- Unified delegated navigation handling for sidebar, dynamically rendered module buttons, and homepage shortcuts.
+- Prevents navigation event handler conflicts and rerouting to home.

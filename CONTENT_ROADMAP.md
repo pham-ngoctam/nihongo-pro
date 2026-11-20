@@ -28,3 +28,7 @@ These counts are a starting content pack, not comprehensive level inventories. T
 5. Add reading passages and listening audio with scripts and questions.
 6. Add full mock-exam section timers, scoring and performance analytics.
 7. Implement spaced repetition scheduling and robust account/cloud backup.
+
+
+## v3 navigation fix
+Single delegated click handler routes sidebar and dynamic module buttons; view rendering is dispatched centrally.
